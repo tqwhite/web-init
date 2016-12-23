@@ -32,7 +32,7 @@ var moduleFunction = function(args) {
 	});
 	
 	qtools.validateProperties({
-		subject: this.config.system || {},
+		subject: this.config.webInit || {},
 		targetScope: this, //will add listed items to targetScope
 		propList: [
 			{
