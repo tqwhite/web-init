@@ -1,0 +1,4 @@
+This is not really intended to be universal. It initializes Expressjs with error handling middleware and a permission handling system called permissionMaster. 
+
+PermissionMaster sends and interprets a Json Web Token that encodes roles and expiration to control access to resources. It relies on an external mechanism for login authentication.
+
