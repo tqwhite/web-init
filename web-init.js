@@ -32,7 +32,18 @@ var moduleFunction = function(args) {
 	});
 	
 	qtools.validateProperties({
-		subject: this.config.system || {},
+		subject: this.config || {},
+		targetScope: this, //will add listed items to targetScope
+		propList: [
+			{
+				name: 'webInit',
+				optional: false
+			}
+		]
+	});
+	
+	qtools.validateProperties({
+		subject: this.config.webInit || {},
 		targetScope: this, //will add listed items to targetScope
 		propList: [
 			{
@@ -42,6 +53,10 @@ var moduleFunction = function(args) {
 			{
 				name: 'name',
 				optional: false
+			},
+			{
+				name: 'htmlFilePath',
+				optional: true
 			}
 		]
 	});
@@ -163,8 +178,23 @@ var moduleFunction = function(args) {
 			}
 		next();
 	};
+	
+	if(this.config.webInit.htmlFilePath){
+		app.use(express.static(this.config.webInit.htmlFilePath));
+	}
 
 	app.use(unpackRequest, this.permissionMaster.checkPath);
+	
+
+	let route;
+	let method;
+	
+	route = new RegExp('/ping$');
+	method='get';
+	this.permissionMaster.addRoute(method, route, 'all');
+	app[method](route, (req, res, next)=>{
+		res.send(`webInit() says, ${this.config.webInit.name} is up and running at ${req.path}`);
+	})
 
 	//INITIALIZATION ====================================
 	if (this.apiManager){
