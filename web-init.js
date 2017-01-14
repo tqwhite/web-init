@@ -5,6 +5,7 @@ const qtools = new qtoolsGen(module);
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 const permissionMasterGen = require('permission-master');
 
@@ -125,7 +126,9 @@ var moduleFunction = function(args) {
 		extended: true
 	}))
 	app.use(bodyParser.json())
-
+	
+	app.use(cookieParser('', {decode:JSON.parse}))
+	
 	app.use((req, res, next) => {
 		if (typeof (this.transactionCount) == 'undefined') {
 			this.transactionCount = 0;
@@ -146,10 +149,10 @@ var moduleFunction = function(args) {
 		req.headers = headers;
 		next();
 	});
-	app.use((req, res, next) => {
-		console.log(`req.path= ${req.path}`);
-		next();
-	});
+// 	app.use((req, res, next) => {
+// 		console.log(`req.path= ${req.path}`);
+// 		next();
+// 	});
 
 	const unpackRequest = (req, res, next) => {
 		/*to accomodate the token, the transfer format is:
@@ -158,6 +161,11 @@ var moduleFunction = function(args) {
 				token://whatever the security system wants
 			}
 		*/
+
+		if (req.cookies && req.cookies.token){
+			req.token = req.cookies.token;
+		}
+
 		if (req.query) {
 			if (req.query.token) {
 				req.token = req.query.token;
