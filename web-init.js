@@ -86,7 +86,7 @@ var moduleFunction = function(args) {
 	
 	const expressRoutesErrorHandler=(err, req, res, next)=>{
 			err=err?err:{};
-			if (!err.code || typeof (+err.code) != 'number'){
+			if ((!err.code || typeof (+err.code) != 'number') && (!err.statusCode || typeof (+err.statusCode) != 'number')){
 				err.code=500;
 			}
 			if (err.errorObject){
@@ -97,7 +97,10 @@ var moduleFunction = function(args) {
 			
 			const foundErrorText=miscInconsistencyNeedsCleanup || err.errorText; //use err.errorText from now on
 			
-			res.status(err.code).send({errorSource:'web-init', errorText:(foundErrorText || 'unexpected error')});
+			if (isNaN(err.code || err.statusCode)){
+				err.code=500;
+			}
+			res.status(err.code || err.statusCode).send({errorSource:'web-init', errorText:(foundErrorText || 'unexpected error')});
 		};
 
 	this.startServer = () => {
@@ -178,7 +181,9 @@ var moduleFunction = function(args) {
 				req.token = req.body.token;
 			}
 			delete req.body.token;
-			req.body = req.body.data;
+			if (req.body.data){
+				req.body = req.body.data;
+			}
 		}
 
 			if (req.body && req.body.token){
